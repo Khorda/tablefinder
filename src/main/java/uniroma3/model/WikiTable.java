@@ -4,6 +4,7 @@ import org.jsoup.nodes.Element;
 
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by khorda on 20/04/17.
@@ -35,6 +36,17 @@ public class WikiTable {
         }
 
         this.url = url;
+    }
+
+    public WikiTable(List<List<String>> table){
+
+        table.forEach(row->{
+            data.add(new LinkedList<String>(row));
+        });
+
+        this.url = "";
+
+
     }
 
     public LinkedList<LinkedList<String>> getData(){

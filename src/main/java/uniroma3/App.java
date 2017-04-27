@@ -2,11 +2,13 @@ package uniroma3;
 
 import uniroma3.load.dbpedia.DBPediaResultFetcher;
 import uniroma3.load.wikipedia.WikiBiColumnsFetcher;
+import uniroma3.load.wikipedia.WikiTableFetcher;
 import uniroma3.model.WikiTable;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.net.URI;
 import java.net.URL;
 import java.util.*;
 
@@ -28,6 +30,7 @@ public class App {
 
             //WikiBiColumnsFetcher wbcf = new WikiBiColumnsFetcher(p, "biColumnsNR");
             DBPediaResultFetcher dbprf = new DBPediaResultFetcher(p);
+            WikiTableFetcher wtf = new WikiTableFetcher(new URI("/Users/khorda/Desktop/table.html"));
 
             Map<String,String> filters = new HashMap<>();
             //filters.put("","");
@@ -43,9 +46,11 @@ public class App {
                     {"Tyrone_Titans", "Omagh"},
                     {"Craigavon_Cowboys", "Craigavon"}}, -1);
 
-            testTables.add(wt1);
-            testTables.add(wt2);
-            testTables.add(wt3);
+            //testTables.add(wt1);
+            //testTables.add(wt2);
+            //testTables.add(wt3);
+
+            testTables.add(wtf.getWikiTable());
 
             /* commented for testing
             for(WikiTable table : wbcf.getTables(filters,projections)){
