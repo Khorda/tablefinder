@@ -67,10 +67,11 @@ public class WikiTableFetcher {
                 String wikiID = urlParts[urlParts.length - 1];
 
                 rowData.add(wikiID);
+
                 }
 
                 catch (NullPointerException e){
-                    e.printStackTrace();
+                    //e.printStackTrace();
                     rowData.add("");
                 }
 
