@@ -1,6 +1,7 @@
 package uniroma3.load.wikipedia;
 
 import com.sun.deploy.util.StringUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -21,7 +22,7 @@ public class WikiTableFetcher {
     ArrayList<List<String>> tableData;
 
 
-    public WikiTableFetcher(String tableHTML){
+    public WikiTableFetcher(String tableHTML) {
 
         Document table = new Document(tableHTML);
 
@@ -35,7 +36,7 @@ public class WikiTableFetcher {
 
         File source = new File(docURIPath.getPath());
 
-        Document table = Jsoup.parse(source, "UTF-8","");
+        Document table = Jsoup.parse(source, "UTF-8", "");
 
         tableData = new ArrayList<>();
 
@@ -44,48 +45,100 @@ public class WikiTableFetcher {
     }
 
 
-    private void fetch(Document table){
+    private void fetch(Document table) {
 
         Element body = table.select("tbody").first();
 
         Elements rows = body.select("tr");
 
-        rows.forEach(row->{
+        rows.forEach(row -> {
 
-            ArrayList<String> rowData = new ArrayList<>();
+            ArrayList<ArrayList<String>> rowData = new ArrayList<>();
 
             row.select("td").forEach(cell -> {
 
-                try{
 
-                Element aHref = cell.select("a").first();
+                Elements a = cell.select("a");
 
-                String referenceID = aHref.attr("href");
+                ArrayList<String> cellElements = new ArrayList<>();
 
-                String[] urlParts = referenceID.split("/");
+                if (a.isEmpty()) {
+                    cellElements.add("");
+                } else {
 
-                String wikiID = urlParts[urlParts.length - 1];
+                    a.forEach(aHref -> {
 
-                rowData.add(wikiID);
+                        String referenceID = aHref.attr("href");
+
+                        String[] urlParts = referenceID.split("/");
+
+                        String wikiID = urlParts[urlParts.length - 1];
+
+                        if (wikiID.contains("%")) {
+                            try {
+                                wikiID = java.net.URLDecoder.decode(wikiID, "UTF-8");
+                            } catch (UnsupportedEncodingException e) {
+
+                            }
+                        }
+                        //wikiID = StringEscapeUtils.unescapeHtml3(wikiID);
+
+                        if (wikiID.contains("File:")) {
+                            //do nothing
+                        } else if (wikiID.contains("index.php")) {
+                            int beginIndex = wikiID.indexOf("title=") + 6;
+                            int endIndex = wikiID.indexOf("&action=");
+                            wikiID = wikiID.substring(beginIndex, endIndex);
+                            cellElements.add(wikiID);
+                        } else {
+                            cellElements.add(wikiID);
+                        }
+
+
+                    });
+
 
                 }
 
-                catch (NullPointerException e){
-                    //e.printStackTrace();
-                    rowData.add("");
-                }
+                rowData.add(cellElements);
 
             });
 
-            tableData.add(rowData);
+
+            ArrayList<ArrayList<String>> normalizedResult = new ArrayList();
+            recursiveRowGenerator(0, rowData, new ArrayList<>(), normalizedResult);
+            normalizedResult.forEach(dataRow -> {
+                tableData.add(dataRow);
+            });
 
 
         });
     }
 
-    public WikiTable getWikiTable(){
+    public WikiTable getWikiTable() {
 
         return new WikiTable(this.tableData);
+
+    }
+
+    private void recursiveRowGenerator(int depth, ArrayList<ArrayList<String>> struct, ArrayList<String> tmpResult, ArrayList<ArrayList<String>> finalResult) {
+
+        if (struct.size() <= depth) {
+            finalResult.add(new ArrayList<>(tmpResult));
+            return;
+        }
+
+        ArrayList<String> currentList = struct.get(depth);
+
+        for (String s : currentList) {
+
+            tmpResult.add(s);
+
+            recursiveRowGenerator(depth + 1, struct, tmpResult, finalResult);
+
+            tmpResult.remove(s);
+
+        }
 
     }
 }

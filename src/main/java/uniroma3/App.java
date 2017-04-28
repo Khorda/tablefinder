@@ -27,6 +27,10 @@ public class App {
 
             //BEGIN
 
+            //String htmlTablePath = args[0];
+            //String firstColumn = args[1];
+            //String secondColumn = args[2];
+
 
             //WikiBiColumnsFetcher wbcf = new WikiBiColumnsFetcher(p, "biColumnsNR");
             DBPediaResultFetcher dbprf = new DBPediaResultFetcher(p);
@@ -62,31 +66,29 @@ public class App {
 
 
             int columnA = 0;
-            int columnB = 1;
+            int columnB = 3;
             List<String[]> relatedIDs = new ArrayList<>();
             List<String[]> unrelatedIDs = new ArrayList<>();
             for(WikiTable table : testTables){
                 System.out.println("******BEGIN******");
                 int totRows = 0; int relRows = 0; int emptyData = 0;
-                for (LinkedList<String> row : table.getData()){
+                for (String[] couple : table.projectOnColumns(columnA,columnB)){
                     totRows++;
-                    String d1 = row.get(columnA);
-                    String d2 = row.get(columnB);
-                    Set<String> relations = dbprf.getRelations(d1,d2);
-                    if(d1.isEmpty() || d2.isEmpty()){
+                    Set<String> relations = dbprf.getRelations(couple[0],couple[1]);
+                    if(couple[0].isEmpty() || couple[1].isEmpty()){
                         emptyData++;
                         continue;
                     }
                     if(!relations.isEmpty()){
                         relRows++;//solo perche sappiamo che hanno 2 colonne
-                        relatedIDs.add(new String[]{row.get(columnA),row.get(columnB)});
+                        relatedIDs.add(new String[]{couple[0],couple[1]});
                     }
                     else{
-                        unrelatedIDs.add(new String[]{row.get(columnA),row.get(columnB)});
+                        unrelatedIDs.add(new String[]{couple[0],couple[1]});
                     }
                 }
                 System.out.println("URL: "+ table.getUrl());
-                System.out.println("Total Rows: "+ totRows);
+                System.out.println("Total parsed IDs: "+ totRows);
                 System.out.println("**********************");
                 System.out.println("Rows WITHOUT IDs (at least 1): "+ emptyData);
                 System.out.println("**********************");

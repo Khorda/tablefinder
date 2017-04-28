@@ -2,9 +2,7 @@ package uniroma3.model;
 
 import org.jsoup.nodes.Element;
 
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by khorda on 20/04/17.
@@ -55,6 +53,61 @@ public class WikiTable {
 
     public String getUrl(){
         return this.url;
+    }
+
+    public Set<String[]> projectOnColumns(int index1, int index2){
+
+        final class Pair{
+            String e1;
+            String e2;
+
+            public Pair(String s1, String s2){
+                e1 = s1;
+                e2 = s2;
+            }
+
+            @Override
+            public int hashCode(){
+                return e1.hashCode() + e2.hashCode();
+            }
+
+            @Override
+            public boolean equals(Object o){
+                return (this.e1.equals(((Pair) o).getE1()) && this.e2.equals(((Pair) o).getE2()));
+            }
+
+            public String getE1(){
+                return e1;
+            }
+
+            public String getE2(){
+                return e2;
+            }
+
+
+        }
+
+        Set<Pair> pairSet = new HashSet<Pair>();
+
+        for(List<String> row : this.data) {
+            try {
+                Pair pair = new Pair(row.get(index1), row.get(index2));
+                pairSet.add(pair);
+            } catch (Exception e) {
+                continue;
+            }
+
+        }
+
+        Set<String[]> resultSet = new HashSet<>();
+
+        pairSet.forEach(pair -> {
+            String[] couple = new String[]{pair.getE1(),pair.getE2()};
+            resultSet.add(couple);
+        });
+
+        return resultSet;
+
     }
 
 }
