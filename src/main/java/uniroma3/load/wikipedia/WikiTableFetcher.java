@@ -1,7 +1,5 @@
 package uniroma3.load.wikipedia;
 
-import com.sun.deploy.util.StringUtils;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -21,6 +19,8 @@ public class WikiTableFetcher {
 
     ArrayList<List<String>> tableData;
 
+    String docName;
+
 
     public WikiTableFetcher(String tableHTML) {
 
@@ -33,6 +33,10 @@ public class WikiTableFetcher {
     }
 
     public WikiTableFetcher(URI docURIPath) throws IOException {
+
+        String[] pathElements = docURIPath.getPath().split("/");
+
+        this.docName = pathElements[pathElements.length -1];
 
         File source = new File(docURIPath.getPath());
 
@@ -83,8 +87,8 @@ public class WikiTableFetcher {
                         }
                         //wikiID = StringEscapeUtils.unescapeHtml3(wikiID);
 
-                        if (wikiID.contains("File:")) {
-                            //do nothing
+                        if (wikiID.contains("File:") || wikiID.contains("#")) {
+                            cellElements.add(""); //insert placeholder
                         } else if (wikiID.contains("index.php")) {
                             int beginIndex = wikiID.indexOf("title=") + 6;
                             int endIndex = wikiID.indexOf("&action=");
@@ -117,7 +121,7 @@ public class WikiTableFetcher {
 
     public WikiTable getWikiTable() {
 
-        return new WikiTable(this.tableData);
+        return new WikiTable(this.tableData, 0, this.docName);
 
     }
 

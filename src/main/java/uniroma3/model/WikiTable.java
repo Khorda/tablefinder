@@ -15,7 +15,11 @@ public class WikiTable {
 
     private String url;
 
-    public WikiTable(String url,String[][] rows, int labelsIndex){
+    private int keyColumnIndex;
+
+    private String docName;
+
+    public WikiTable(String url,String[][] rows, int labelsIndex, int keyColumnIndex){
 
         for(String[] row : rows){
             LinkedList<String> tmpRow = new LinkedList();
@@ -34,9 +38,10 @@ public class WikiTable {
         }
 
         this.url = url;
+        this.keyColumnIndex = keyColumnIndex;
     }
 
-    public WikiTable(List<List<String>> table){
+    public WikiTable(List<List<String>> table, int keyColumnIndex, String docName){
 
         table.forEach(row->{
             data.add(new LinkedList<String>(row));
@@ -44,6 +49,9 @@ public class WikiTable {
 
         this.url = "";
 
+        this.keyColumnIndex = keyColumnIndex;
+
+        this.docName= docName;
 
     }
 
@@ -110,4 +118,33 @@ public class WikiTable {
 
     }
 
+    public ArrayList<ArrayList<String>> toColumns(){
+
+        ArrayList<ArrayList<String>> tableColumns = new ArrayList<>();
+
+        for(int i = 0 ; i < this.data.get(0).size() ; i++){
+
+            ArrayList<String> column = new ArrayList<>();
+
+            for (int j = 0 ; j < this.data.size() ; j++){
+
+                String data = this.data.get(j).get(i);
+
+                column.add(data);
+            }
+
+            tableColumns.add(column);
+
+        }
+
+        return tableColumns;
+    }
+
+    public int getColumnIndex() {
+        return this.keyColumnIndex;
+    }
+
+    public String getDocName(){
+        return this.docName;
+    }
 }

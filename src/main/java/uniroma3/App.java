@@ -1,7 +1,7 @@
 package uniroma3;
 
+import uniroma3.export.JsonExporter;
 import uniroma3.load.dbpedia.DBPediaResultFetcher;
-import uniroma3.load.wikipedia.WikiBiColumnsFetcher;
 import uniroma3.load.wikipedia.WikiTableFetcher;
 import uniroma3.model.WikiTable;
 
@@ -16,8 +16,12 @@ import java.util.*;
  * Hello world!
  */
 public class App {
+
+
     public static void main(String[] args) {
         try {
+
+
             URL propertiesURL = new File("/Users/khorda/Documents/tablefinder/src/resources/conf.properties").toURI().toURL();
             //URL propertiesURL = new File(args[0]).toURI().toURL();
             Properties p = new Properties();
@@ -34,7 +38,7 @@ public class App {
 
             //WikiBiColumnsFetcher wbcf = new WikiBiColumnsFetcher(p, "biColumnsNR");
             DBPediaResultFetcher dbprf = new DBPediaResultFetcher(p);
-            WikiTableFetcher wtf = new WikiTableFetcher(new URI("/Users/khorda/Desktop/table.html"));
+            WikiTableFetcher wtf = new WikiTableFetcher(new URI(p.getProperty("app.load.path") + "table.html"));
 
             //Map<String,String> filters = new HashMap<>();
             //filters.put("","");
@@ -66,7 +70,7 @@ public class App {
 
 
             int columnA = 0;
-            int columnB = 3;
+            int columnB = 1;
             List<String[]> relatedIDs = new ArrayList<>();
             List<String[]> unrelatedIDs = new ArrayList<>();
             for(WikiTable table : testTables){
@@ -102,6 +106,10 @@ public class App {
                     System.out.println(couple[0]+"<->"+couple[1]);
                 }
                 System.out.println("******END******");
+
+                //save table in json format
+                JsonExporter j = new JsonExporter(table);
+                j.save(p.getProperty("app.save.path"), table.getDocName()+"."+Integer.toString(table.hashCode()));
             }
 
             //END
